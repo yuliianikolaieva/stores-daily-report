@@ -10,6 +10,9 @@ Private daily performance report for active UA Stores partners in Enterprise and
 - Day vs the same day last week
 - Week-to-date vs the corresponding prior week
 - Month-to-date vs the same number of days in the prior month
+- Interactive selection of any available day, calendar week, or month
+
+Data is retained from **1 January 2026**.
 
 ## Automation
 

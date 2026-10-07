@@ -12,7 +12,7 @@ from databricks import sql as dbsql
 
 ROOT = Path(__file__).parent
 KYIV = ZoneInfo("Europe/Kyiv")
-LOOKBACK_DAYS = 95
+DATA_START = "2026-01-01"
 
 QUERY = f"""
 WITH providers AS (
@@ -34,7 +34,7 @@ orders AS (
         SUM(CASE WHEN f.order_state IN ('failed', 'rejected') THEN 1 ELSE 0 END) AS failed_orders
     FROM main.ng_delivery.fact_order_delivery f
     JOIN providers p ON p.provider_id = f.provider_id
-    WHERE f.order_created_date >= DATE_ADD(CURRENT_DATE(), -{LOOKBACK_DAYS})
+    WHERE f.order_created_date >= DATE '{DATA_START}'
       AND f.order_created_date < CURRENT_DATE()
     GROUP BY 1, 2, 3
 ),
@@ -45,7 +45,7 @@ availability AS (
         COUNT(DISTINCT d.provider_id) AS stores_observed
     FROM main.ng_delivery.fact_provider_daily d
     JOIN providers p ON p.provider_id = d.provider_id
-    WHERE d.observation_date >= DATE_ADD(CURRENT_DATE(), -{LOOKBACK_DAYS})
+    WHERE d.observation_date >= DATE '{DATA_START}'
       AND d.observation_date < CURRENT_DATE()
     GROUP BY 1, 2, 3
 )
@@ -90,7 +90,7 @@ def main():
         raise RuntimeError("Daily Stores query returned no rows; existing report was preserved.")
     payload = {
         "generated_at": datetime.now(KYIV).isoformat(), "through": max(row["date"] for row in rows),
-        "lookback_days": LOOKBACK_DAYS,
+        "data_start": DATA_START,
         "scope": "UA Stores partners in Enterprise (AM Segment) and SMB (AM Segment); Mid-market is excluded.",
         "rows": rows,
     }

@@ -1,10 +1,95 @@
 <!doctype html>
-<html lang="uk"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Stores Daily — ENT & SMB</title><style>
-:root{--ink:#15231d;--muted:#66756d;--line:#dce5df;--green:#0b8b55;--soft:#f3f8f5;--red:#c33b43}*{box-sizing:border-box}body{margin:0;background:#f7faf8;color:var(--ink);font:14px Inter,system-ui,sans-serif}main{max-width:1440px;margin:auto;padding:32px 24px 48px}h1{font-size:28px;margin:0 0 5px}h2{font-size:17px;margin:28px 0 12px}.sub{color:var(--muted)}.top{display:flex;justify-content:space-between;align-items:start;gap:18px;flex-wrap:wrap}a{color:var(--green);font-weight:600;text-decoration:none}.filters{display:flex;gap:8px;flex-wrap:wrap}button{border:1px solid var(--line);background:#fff;border-radius:999px;padding:8px 13px;cursor:pointer;color:var(--ink)}button.active{background:var(--green);border-color:var(--green);color:#fff}.cards{display:grid;grid-template-columns:repeat(4,minmax(160px,1fr));gap:12px;margin-top:20px}.card,.table-wrap{background:#fff;border:1px solid var(--line);border-radius:12px}.card{padding:15px}.label{color:var(--muted);font-size:12px}.value{font-size:24px;font-weight:750;margin:5px 0}.delta{font-size:12px;font-weight:650}.up{color:var(--green)}.down{color:var(--red)}.flat{color:var(--muted)}.table-wrap{overflow:auto}table{width:100%;border-collapse:collapse;white-space:nowrap}th,td{padding:11px 12px;border-bottom:1px solid var(--line);text-align:right}th{color:var(--muted);font-size:11px;letter-spacing:.02em;text-transform:uppercase;background:#fbfdfc;position:sticky;top:0}th:first-child,td:first-child,th:nth-child(2),td:nth-child(2){text-align:left}tr:last-child td{border:0}.segment{font-size:11px;padding:3px 7px;border-radius:999px;background:var(--soft);color:var(--green);font-weight:700}.method{margin-top:16px;background:var(--soft);padding:13px;border-radius:9px;font-size:12px;color:#496055}@media(max-width:800px){main{padding:22px 12px}.cards{grid-template-columns:repeat(2,1fr)}}
-</style></head><body><main><div class="top"><div><h1>Stores Daily — ENT & SMB</h1><div class="sub" id="subtitle">Loading report…</div></div><div class="filters"><button class="active" data-segment="ALL">All Stores</button><button data-segment="ENT">ENT</button><button data-segment="SMB">SMB</button><a href="https://github.com/yuliianikolaieva/stores-daily-report" target="_blank" rel="noreferrer">GitHub ↗</a></div></div><section class="cards" id="cards"></section><h2>Партнери: день, WTD та MTD</h2><div class="table-wrap"><table><thead><tr><th>Partner</th><th>Segment</th><th>GMV</th><th>DoD vs LW</th><th>Orders</th><th>DoD vs LW</th><th>Availability</th><th>WTD GMV WoW</th><th>WTD Orders WoW</th><th>MTD GMV vs PM</th><th>MTD Orders vs PM</th><th>Bad rate</th><th>Failed rate</th></tr></thead><tbody id="rows"></tbody></table></div><div class="method">DoD порівнює останній завершений день з тим самим днем минулого тижня. WTD — понеділок–останній день проти відповідного періоду минулого тижня. MTD — поточний місяць до останнього дня проти такої ж кількості днів попереднього місяця. Availability = active minutes / working minutes, зважена за всіма магазинами.</div></main>
+<html lang="uk">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Stores Daily — ENT & SMB</title>
+  <style>
+    :root{--ink:#15231d;--muted:#66756d;--line:#dce5df;--green:#0b8b55;--soft:#f3f8f5;--red:#c33b43}*{box-sizing:border-box}body{margin:0;background:#f7faf8;color:var(--ink);font:14px Inter,system-ui,sans-serif}main{max-width:1440px;margin:auto;padding:32px 24px 48px}h1{font-size:28px;margin:0 0 5px}h2{font-size:17px;margin:28px 0 12px}.sub{color:var(--muted)}.top{display:flex;justify-content:space-between;align-items:start;gap:18px;flex-wrap:wrap}.filters{display:flex;gap:8px;flex-wrap:wrap;align-items:center}button,select{border:1px solid var(--line);background:#fff;border-radius:999px;padding:8px 13px;color:var(--ink);font:inherit}button{cursor:pointer}button.active{background:var(--green);border-color:var(--green);color:#fff}a{color:var(--green);font-weight:600;text-decoration:none}.cards{display:grid;grid-template-columns:repeat(4,minmax(160px,1fr));gap:12px;margin-top:20px}.card,.table-wrap{background:#fff;border:1px solid var(--line);border-radius:12px}.card{padding:15px}.label{color:var(--muted);font-size:12px}.value{font-size:24px;font-weight:750;margin:5px 0}.delta{font-size:12px;font-weight:650}.up{color:var(--green)}.down{color:var(--red)}.flat{color:var(--muted)}.table-wrap{overflow:auto}table{width:100%;border-collapse:collapse;white-space:nowrap}th,td{padding:11px 12px;border-bottom:1px solid var(--line);text-align:right}th{color:var(--muted);font-size:11px;letter-spacing:.02em;text-transform:uppercase;background:#fbfdfc;position:sticky;top:0}th:first-child,td:first-child,th:nth-child(2),td:nth-child(2){text-align:left}tr:last-child td{border:0}.segment{font-size:11px;padding:3px 7px;border-radius:999px;background:var(--soft);color:var(--green);font-weight:700}.method{margin-top:16px;background:var(--soft);padding:13px;border-radius:9px;font-size:12px;color:#496055}@media(max-width:800px){main{padding:22px 12px}.cards{grid-template-columns:repeat(2,1fr)}}
+  </style>
+</head>
+<body>
+<main>
+  <div class="top">
+    <div><h1>Stores Daily — ENT & SMB</h1><div class="sub" id="subtitle">Loading report…</div></div>
+    <div class="filters">
+      <button class="active unit" data-unit="day">День</button><button class="unit" data-unit="week">Тиждень</button><button class="unit" data-unit="month">Місяць</button>
+      <select id="period" aria-label="Період"></select>
+      <button class="active segment-filter" data-segment="ALL">All Stores</button><button class="segment-filter" data-segment="ENT">ENT</button><button class="segment-filter" data-segment="SMB">SMB</button>
+      <a href="https://github.com/yuliianikolaieva/stores-daily-report" target="_blank" rel="noreferrer">GitHub ↗</a>
+    </div>
+  </div>
+  <section class="cards" id="cards"></section>
+  <h2 id="table-title">Партнери</h2>
+  <div class="table-wrap"><table><thead><tr>
+    <th>Partner</th><th>Segment</th><th>GMV</th><th id="gmv-change">Δ</th><th>Orders</th><th id="orders-change">Δ</th>
+    <th>Availability</th><th>Bad rate</th><th>Failed rate</th>
+  </tr></thead><tbody id="rows"></tbody></table></div>
+  <div class="method" id="method"></div>
+</main>
 <script>
-let data,segment="ALL";const euro=new Intl.NumberFormat("uk-UA",{style:"currency",currency:"EUR",maximumFractionDigits:0}),num=new Intl.NumberFormat("uk-UA",{maximumFractionDigits:0}),iso=d=>d.toISOString().slice(0,10),dateAt=(s,n)=>{const d=new Date(s+"T12:00:00");d.setDate(d.getDate()+n);return iso(d)},monday=s=>{const d=new Date(s+"T12:00:00");d.setDate(d.getDate()-(d.getDay()+6)%7);return iso(d)},previousMonthSameDay=s=>{const d=new Date(s+"T12:00:00"),day=d.getDate();d.setMonth(d.getMonth()-1,1);d.setDate(Math.min(day,new Date(d.getFullYear(),d.getMonth()+1,0).getDate()));return iso(d)},monthStart=s=>s.slice(0,7)+"-01",pct=(a,b)=>b?(a-b)/Math.abs(b)*100:null,fmtPct=x=>x==null?"—":`${x>0?"+":""}${x.toFixed(1)}%`,delta=x=>`<span class="${x==null?"flat":x>0?"up":x<0?"down":"flat"}">${fmtPct(x)}</span>`;
-function aggregate(rows){const o={gmv_eur:0,orders:0,bad_orders:0,failed_orders:0,active_minutes:0,working_minutes:0,stores_observed:0};rows.forEach(r=>Object.keys(o).forEach(k=>o[k]+=Number(r[k]||0)));o.availability=o.working_minutes?o.active_minutes/o.working_minutes*100:null;o.badRate=o.orders?o.bad_orders/o.orders*100:null;o.failedRate=o.orders+o.failed_orders?o.failed_orders/(o.orders+o.failed_orders)*100:null;return o}function inRange(r,s,e){return r.date>=s&&r.date<=e}
-function render(){const latest=data.through,prior=dateAt(latest,-7),week=monday(latest),priorWeek=dateAt(week,-7),prevMonthEnd=previousMonthSameDay(latest),prevMonthStart=monthStart(prevMonthEnd),scoped=data.rows.filter(r=>segment==="ALL"||r.segment===segment),today=aggregate(scoped.filter(r=>r.date===latest)),lastWeek=aggregate(scoped.filter(r=>r.date===prior)),wtd=aggregate(scoped.filter(r=>inRange(r,week,latest))),pwtd=aggregate(scoped.filter(r=>inRange(r,priorWeek,prior))),mtd=aggregate(scoped.filter(r=>inRange(r,monthStart(latest),latest))),pmtd=aggregate(scoped.filter(r=>inRange(r,prevMonthStart,prevMonthEnd)));document.querySelector("#subtitle").textContent=`Дані до ${latest} · ${segment==="ALL"?"ENT + SMB":segment} · оновлено ${new Date(data.generated_at).toLocaleString("uk-UA")}`;const cards=[["GMV за день",euro.format(today.gmv_eur),pct(today.gmv_eur,lastWeek.gmv_eur),"vs same day last week"],["Orders за день",num.format(today.orders),pct(today.orders,lastWeek.orders),"vs same day last week"],["WTD GMV",euro.format(wtd.gmv_eur),pct(wtd.gmv_eur,pwtd.gmv_eur),"vs previous WTD"],["Availability",today.availability==null?"—":today.availability.toFixed(1)+"%",null,"weighted active / working time"],["MTD GMV",euro.format(mtd.gmv_eur),pct(mtd.gmv_eur,pmtd.gmv_eur),"vs same days previous month"],["MTD Orders",num.format(mtd.orders),pct(mtd.orders,pmtd.orders),"vs same days previous month"],["Bad order rate",today.badRate==null?"—":today.badRate.toFixed(1)+"%",null,"delivered orders"],["Failed order rate",today.failedRate==null?"—":today.failedRate.toFixed(1)+"%",null,"all terminal orders"]];document.querySelector("#cards").innerHTML=cards.map(([l,v,d,n])=>`<div class="card"><div class="label">${l}</div><div class="value">${v}</div><div class="delta">${d==null?"":delta(d)+" · "}${n}</div></div>`).join("");const rows=[...new Set(scoped.map(r=>r.segment+"|"+r.partner))].map(key=>{const[seg,partner]=key.split("|"),rs=scoped.filter(r=>r.segment===seg&&r.partner===partner),cur=aggregate(rs.filter(r=>r.date===latest)),prev=aggregate(rs.filter(r=>r.date===prior)),cw=aggregate(rs.filter(r=>inRange(r,week,latest))),pw=aggregate(rs.filter(r=>inRange(r,priorWeek,prior))),cm=aggregate(rs.filter(r=>inRange(r,monthStart(latest),latest))),pm=aggregate(rs.filter(r=>inRange(r,prevMonthStart,prevMonthEnd)));return{seg,partner,cur,prev,cw,pw,cm,pm}}).filter(x=>x.cur.gmv_eur||x.cw.gmv_eur||x.cm.gmv_eur).sort((a,b)=>b.cm.gmv_eur-a.cm.gmv_eur);document.querySelector("#rows").innerHTML=rows.map(r=>`<tr><td>${r.partner}</td><td><span class="segment">${r.seg}</span></td><td>${euro.format(r.cur.gmv_eur)}</td><td>${delta(pct(r.cur.gmv_eur,r.prev.gmv_eur))}</td><td>${num.format(r.cur.orders)}</td><td>${delta(pct(r.cur.orders,r.prev.orders))}</td><td>${r.cur.availability==null?"—":r.cur.availability.toFixed(1)+"%"}</td><td>${delta(pct(r.cw.gmv_eur,r.pw.gmv_eur))}</td><td>${delta(pct(r.cw.orders,r.pw.orders))}</td><td>${delta(pct(r.cm.gmv_eur,r.pm.gmv_eur))}</td><td>${delta(pct(r.cm.orders,r.pm.orders))}</td><td>${r.cur.badRate==null?"—":r.cur.badRate.toFixed(1)+"%"}</td><td>${r.cur.failedRate==null?"—":r.cur.failedRate.toFixed(1)+"%"}</td></tr>`).join("")}fetch("daily_partner_data.json").then(r=>r.json()).then(x=>{data=x;render()}).catch(()=>document.querySelector("#subtitle").textContent="Не вдалося завантажити daily_partner_data.json.");document.querySelectorAll("button").forEach(b=>b.onclick=()=>{segment=b.dataset.segment;document.querySelectorAll("button").forEach(x=>x.classList.toggle("active",x===b));render()});
-</script></body></html>
+let data, unit = "day", segment = "ALL";
+const euro = new Intl.NumberFormat("uk-UA",{style:"currency",currency:"EUR",maximumFractionDigits:0});
+const num = new Intl.NumberFormat("uk-UA",{maximumFractionDigits:0});
+const iso = d => d.toISOString().slice(0,10);
+const shift = (s,n) => { const d=new Date(s+"T12:00:00");d.setDate(d.getDate()+n);return iso(d); };
+const monday = s => shift(s,-((new Date(s+"T12:00:00").getDay()+6)%7));
+const monthStart = s => s.slice(0,7)+"-01";
+const nextMonth = s => { const d=new Date(s+"T12:00:00");d.setMonth(d.getMonth()+1,1);return iso(d); };
+const prevMonth = s => { const d=new Date(s+"T12:00:00");d.setMonth(d.getMonth()-1,1);return iso(d); };
+const pct = (a,b) => b ? (a-b)/Math.abs(b)*100 : null;
+const fmtPct = x => x==null ? "—" : `${x>0?"+":""}${x.toFixed(1)}%`;
+const delta = x => `<span class="${x==null?"flat":x>0?"up":x<0?"down":"flat"}">${fmtPct(x)}</span>`;
+function aggregate(rows) {
+  const o={gmv_eur:0,orders:0,bad_orders:0,failed_orders:0,active_minutes:0,working_minutes:0};
+  rows.forEach(r=>Object.keys(o).forEach(k=>o[k]+=Number(r[k]||0)));
+  o.availability=o.working_minutes ? o.active_minutes/o.working_minutes*100 : null;
+  o.badRate=o.orders ? o.bad_orders/o.orders*100 : null;
+  o.failedRate=o.orders+o.failed_orders ? o.failed_orders/(o.orders+o.failed_orders)*100 : null;
+  return o;
+}
+function rangeRows(rows,start,end){return rows.filter(r=>r.date>=start&&r.date<=end);}
+function options() {
+  const keys=[...new Set(data.rows.map(r=>unit==="day"?r.date:unit==="week"?monday(r.date):monthStart(r.date)))].sort().reverse();
+  const select=document.querySelector("#period"), selected=select.value;
+  select.innerHTML=keys.map(k=>`<option value="${k}">${label(k)}</option>`).join("");
+  select.value=keys.includes(selected)?selected:keys[0];
+}
+function label(start) {
+  if(unit==="day") return new Date(start+"T12:00:00").toLocaleDateString("uk-UA",{day:"numeric",month:"long",year:"numeric"});
+  if(unit==="week") return `${start} — ${shift(start,6)}`;
+  return new Date(start+"T12:00:00").toLocaleDateString("uk-UA",{month:"long",year:"numeric"});
+}
+function windowFor(start) {
+  if(unit==="day") return {start,end:start,priorStart:shift(start,-7),priorEnd:shift(start,-7),compare:"vs same day last week"};
+  if(unit==="week") return {start,end:shift(start,6),priorStart:shift(start,-7),priorEnd:shift(start,-1),compare:"vs prior week"};
+  const calendarEnd=shift(nextMonth(start),-1), end=calendarEnd>data.through?data.through:calendarEnd, ps=prevMonth(start);
+  return {start,end,priorStart:ps,priorEnd:shift(ps,Math.round((new Date(end+"T12:00:00")-new Date(start+"T12:00:00"))/86400000)),compare:"vs prior month (same days)"};
+}
+function render() {
+  const start=document.querySelector("#period").value, w=windowFor(start);
+  const scoped=data.rows.filter(r=>segment==="ALL"||r.segment===segment);
+  const current=aggregate(rangeRows(scoped,w.start,w.end)), prior=aggregate(rangeRows(scoped,w.priorStart,w.priorEnd));
+  document.querySelector("#subtitle").textContent=`${label(start)} · ${segment==="ALL"?"ENT + SMB":segment} · дані з ${data.data_start} · оновлено ${new Date(data.generated_at).toLocaleString("uk-UA")}`;
+  const cards=[
+    ["GMV",euro.format(current.gmv_eur),pct(current.gmv_eur,prior.gmv_eur),w.compare],
+    ["Orders",num.format(current.orders),pct(current.orders,prior.orders),w.compare],
+    ["Availability",current.availability==null?"—":current.availability.toFixed(1)+"%",null,"weighted active / working time"],
+    ["Bad order rate",current.badRate==null?"—":current.badRate.toFixed(1)+"%",null,"delivered orders"],
+    ["Failed order rate",current.failedRate==null?"—":current.failedRate.toFixed(1)+"%",null,"all terminal orders"]
+  ];
+  document.querySelector("#cards").innerHTML=cards.map(([l,v,d,n])=>`<div class="card"><div class="label">${l}</div><div class="value">${v}</div><div class="delta">${d==null?"":delta(d)+" · "}${n}</div></div>`).join("");
+  document.querySelector("#table-title").textContent=`Партнери — ${label(start)}`;
+  document.querySelector("#gmv-change").textContent=`GMV ${w.compare}`;
+  document.querySelector("#orders-change").textContent=`Orders ${w.compare}`;
+  const keys=[...new Set(scoped.map(r=>r.segment+"|"+r.partner))];
+  const rows=keys.map(key=>{const [seg,partner]=key.split("|"),partnerRows=scoped.filter(r=>r.segment===seg&&r.partner===partner);return {seg,partner,current:aggregate(rangeRows(partnerRows,w.start,w.end)),prior:aggregate(rangeRows(partnerRows,w.priorStart,w.priorEnd))};}).filter(r=>r.current.gmv_eur||r.prior.gmv_eur).sort((a,b)=>b.current.gmv_eur-a.current.gmv_eur);
+  document.querySelector("#rows").innerHTML=rows.map(r=>`<tr><td>${r.partner}</td><td><span class="segment">${r.seg}</span></td><td>${euro.format(r.current.gmv_eur)}</td><td>${delta(pct(r.current.gmv_eur,r.prior.gmv_eur))}</td><td>${num.format(r.current.orders)}</td><td>${delta(pct(r.current.orders,r.prior.orders))}</td><td>${r.current.availability==null?"—":r.current.availability.toFixed(1)+"%"}</td><td>${r.current.badRate==null?"—":r.current.badRate.toFixed(1)+"%"}</td><td>${r.current.failedRate==null?"—":r.current.failedRate.toFixed(1)+"%"}</td></tr>`).join("");
+  document.querySelector("#method").textContent=unit==="day"?"День порівнюється з тим самим днем минулого тижня. Availability = active minutes / working minutes.":unit==="week"?"Тиждень порівнюється з попереднім календарним тижнем. Availability зважена за всіма магазинами.":"Місяць порівнюється з попереднім місяцем за таку саму кількість днів. Availability зважена за всіма магазинами.";
+}
+fetch("daily_partner_data.json").then(r=>r.json()).then(x=>{data=x;options();render();}).catch(()=>document.querySelector("#subtitle").textContent="Не вдалося завантажити daily_partner_data.json.");
+document.querySelector("#period").onchange=render;
+document.querySelectorAll(".unit").forEach(b=>b.onclick=()=>{unit=b.dataset.unit;document.querySelectorAll(".unit").forEach(x=>x.classList.toggle("active",x===b));options();render();});
+document.querySelectorAll(".segment-filter").forEach(b=>b.onclick=()=>{segment=b.dataset.segment;document.querySelectorAll(".segment-filter").forEach(x=>x.classList.toggle("active",x===b));render();});
+</script>
+</body></html>
