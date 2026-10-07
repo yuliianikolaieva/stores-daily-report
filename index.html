@@ -30,6 +30,7 @@
 <script>
 let data, unit = "day", segment = "ALL";
 const euro = new Intl.NumberFormat("uk-UA",{style:"currency",currency:"EUR",maximumFractionDigits:0});
+const uah = new Intl.NumberFormat("uk-UA",{style:"currency",currency:"UAH",maximumFractionDigits:0});
 const num = new Intl.NumberFormat("uk-UA",{maximumFractionDigits:0});
 const iso = d => d.toISOString().slice(0,10);
 const shift = (s,n) => { const d=new Date(s+"T12:00:00");d.setDate(d.getDate()+n);return iso(d); };
@@ -41,7 +42,7 @@ const pct = (a,b) => b ? (a-b)/Math.abs(b)*100 : null;
 const fmtPct = x => x==null ? "—" : `${x>0?"+":""}${x.toFixed(1)}%`;
 const delta = x => `<span class="${x==null?"flat":x>0?"up":x<0?"down":"flat"}">${fmtPct(x)}</span>`;
 function aggregate(rows) {
-  const o={gmv_eur:0,orders:0,bad_orders:0,failed_orders:0,active_minutes:0,working_minutes:0};
+  const o={gmv_eur:0,gmv_uah:0,orders:0,bad_orders:0,failed_orders:0,active_minutes:0,working_minutes:0};
   rows.forEach(r=>Object.keys(o).forEach(k=>o[k]+=Number(r[k]||0)));
   o.availability=o.working_minutes ? o.active_minutes/o.working_minutes*100 : null;
   o.badRate=o.orders ? o.bad_orders/o.orders*100 : null;
@@ -75,7 +76,7 @@ function render() {
   const current=aggregate(rangeRows(scoped,w.start,w.end)), prior=aggregate(rangeRows(scoped,w.priorStart,w.priorEnd));
   document.querySelector("#subtitle").textContent=`${label(start)} · ${segment==="ALL"?"ENT + SMB":segment} · дані з ${data.data_start} · оновлено ${new Date(data.generated_at).toLocaleString("uk-UA")}`;
   const cards=[
-    ["GMV",euro.format(current.gmv_eur),pct(current.gmv_eur,prior.gmv_eur),w.compare],
+    ["GMV",`${euro.format(current.gmv_eur)} / ${uah.format(current.gmv_uah)}`,pct(current.gmv_eur,prior.gmv_eur),w.compare],
     ["Orders",num.format(current.orders),pct(current.orders,prior.orders),w.compare],
     ["Availability",current.availability==null?"—":current.availability.toFixed(1)+"%",null,"weighted active / working time"],
     ["Bad order rate",current.badRate==null?"—":current.badRate.toFixed(1)+"%",null,"delivered orders"],
@@ -87,7 +88,7 @@ function render() {
   document.querySelector("#orders-change").textContent=`Orders ${w.compare}`;
   const keys=[...new Set(scoped.map(r=>r.segment+"|"+r.partner))];
   const rows=keys.map(key=>{const [seg,partner]=key.split("|"),partnerRows=scoped.filter(r=>r.segment===seg&&r.partner===partner);return {seg,partner,current:aggregate(rangeRows(partnerRows,w.start,w.end)),prior:aggregate(rangeRows(partnerRows,w.priorStart,w.priorEnd))};}).filter(r=>r.current.gmv_eur||r.prior.gmv_eur).sort((a,b)=>b.current.gmv_eur-a.current.gmv_eur);
-  document.querySelector("#rows").innerHTML=rows.map(r=>`<tr><td>${r.partner}</td><td><span class="segment">${r.seg}</span></td><td>${euro.format(r.current.gmv_eur)}</td><td>${delta(pct(r.current.gmv_eur,r.prior.gmv_eur))}</td><td>${num.format(r.current.orders)}</td><td>${delta(pct(r.current.orders,r.prior.orders))}</td><td>${r.current.availability==null?"—":r.current.availability.toFixed(1)+"%"}</td><td>${r.current.badRate==null?"—":r.current.badRate.toFixed(1)+"%"}</td><td>${r.current.failedRate==null?"—":r.current.failedRate.toFixed(1)+"%"}</td></tr>`).join("");
+  document.querySelector("#rows").innerHTML=rows.map(r=>`<tr><td>${r.partner}</td><td><span class="segment">${r.seg}</span></td><td>${euro.format(r.current.gmv_eur)} / ${uah.format(r.current.gmv_uah)}</td><td>${delta(pct(r.current.gmv_eur,r.prior.gmv_eur))}</td><td>${num.format(r.current.orders)}</td><td>${delta(pct(r.current.orders,r.prior.orders))}</td><td>${r.current.availability==null?"—":r.current.availability.toFixed(1)+"%"}</td><td>${r.current.badRate==null?"—":r.current.badRate.toFixed(1)+"%"}</td><td>${r.current.failedRate==null?"—":r.current.failedRate.toFixed(1)+"%"}</td></tr>`).join("");
   document.querySelector("#method").textContent=unit==="day"?"День порівнюється з тим самим днем минулого тижня. Availability = active minutes / working minutes.":unit==="week"?"Тиждень порівнюється з попереднім тижнем за таку саму кількість днів (WTD для поточного тижня). Availability зважена за всіма магазинами.":"Місяць порівнюється з попереднім місяцем за таку саму кількість днів (MTD для поточного місяця). Availability зважена за всіма магазинами.";
 }
 fetch("daily_partner_data.json").then(r=>r.json()).then(x=>{data=x;options();render();}).catch(()=>document.querySelector("#subtitle").textContent="Не вдалося завантажити daily_partner_data.json.");

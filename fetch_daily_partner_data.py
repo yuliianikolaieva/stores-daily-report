@@ -30,6 +30,7 @@ orders AS (
     SELECT f.order_created_date AS date, p.segment, p.partner,
         SUM(CASE WHEN f.order_state = 'delivered' THEN 1 ELSE 0 END) AS orders,
         SUM(CASE WHEN f.order_state = 'delivered' THEN f.order_gmv_eur ELSE 0 END) AS gmv_eur,
+        SUM(CASE WHEN f.order_state = 'delivered' THEN f.order_gmv ELSE 0 END) AS gmv_uah,
         SUM(CASE WHEN f.order_state = 'delivered' AND f.is_bad_order THEN 1 ELSE 0 END) AS bad_orders,
         SUM(CASE WHEN f.order_state IN ('failed', 'rejected') THEN 1 ELSE 0 END) AS failed_orders
     FROM main.ng_delivery.fact_order_delivery f
@@ -51,7 +52,7 @@ availability AS (
 )
 SELECT COALESCE(o.date, a.date) AS date, COALESCE(o.segment, a.segment) AS segment,
     COALESCE(o.partner, a.partner) AS partner, COALESCE(o.orders, 0) AS orders,
-    COALESCE(o.gmv_eur, 0) AS gmv_eur, COALESCE(o.bad_orders, 0) AS bad_orders,
+    COALESCE(o.gmv_eur, 0) AS gmv_eur, COALESCE(o.gmv_uah, 0) AS gmv_uah, COALESCE(o.bad_orders, 0) AS bad_orders,
     COALESCE(o.failed_orders, 0) AS failed_orders, a.active_minutes, a.working_minutes,
     COALESCE(a.stores_observed, 0) AS stores_observed
 FROM orders o FULL OUTER JOIN availability a
