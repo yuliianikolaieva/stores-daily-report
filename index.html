@@ -57,7 +57,7 @@ function options() {
   select.value=keys.includes(selected)?selected:keys[0];
 }
 function label(start) {
-  if(unit==="day") return new Date(start+"T12:00:00").toLocaleDateString("uk-UA",{day:"numeric",month:"long",year:"numeric"});
+  if(unit==="day") return new Date(start+"T12:00:00").toLocaleDateString("uk-UA",{weekday:"long",day:"numeric",month:"long",year:"numeric"});
   if(unit==="week") return `${start} — ${shift(start,6)}`;
   return new Date(start+"T12:00:00").toLocaleDateString("uk-UA",{month:"long",year:"numeric"});
 }
