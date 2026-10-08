@@ -7,7 +7,7 @@
 
 ## Executive conclusion
 
-LOKO's **CP L1 was negative by €957.28 (−1.03% of GMV)** in September. This is **not caused by demand-incentive / campaign spend**: in the accounting definition, CP L1 is reporting revenue minus variable costs; demand incentives are deducted only afterwards, in CP L2.
+LOKO's **CP L1 was negative by €957.28 (−1.03% of GMV)** in September. Demand incentives are deducted only afterwards, in CP L2. A separate finance field shows **€43.39 of Bolt menu-campaign cost share inside CP L1**; this is only 1.1% of the €3,887.82 CP L1 variable-cost base and therefore does not explain the loss.
 
 The direct CP L1 bridge is:
 
@@ -21,11 +21,11 @@ The direct CP L1 bridge is:
 | Demand incentives (deducted after CP L1) | (292.16) |
 | **CP L2** | **(1,249.44)** |
 
-So the immediate reason for negative CP L1 is a **€957.28 gap between reporting revenue and variable costs**. The source exposes €3,787.45 of this cost as the residual `other variable costs` bucket after demand refunds / supply refunds / fraud. LOKO has no invoiced courier cost in this period; this must not be interpreted as “no CP L1 costs”, because the residual bucket is still €3.79k.
+So the immediate reason for negative CP L1 is a **€957.28 gap between reporting revenue and variable costs**. The source exposes **€3,787.45** as the residual `other variable costs` bucket after demand refunds / supply refunds / fraud. Its known part is **€43.39 Bolt menu-campaign cost share**, leaving **€3,744.06** not itemised by the source. The complete bridge is: €3,744.06 unitemised variable costs + €43.39 Bolt menu-campaign cost share + €277.71 supply refunds − €177.34 demand-refund credit = €3,887.82. LOKO has no invoiced courier cost, supply incentives or fraud in this period; zero courier cost does not mean zero CP L1 costs.
 
 ## Important distinction: campaign funding vs CP L1
 
-- **Campaign spend is not a CP L1 cost.** It is represented in demand-incentive / campaign data and lowers CP L2, not CP L1.
+- **Demand incentives are not a CP L1 cost** and lower CP L2. However, €43.39 of **Bolt menu-campaign cost share** is recorded in CP L1 variable costs.
 - `campaign_spend_provider_eur` is the part funded by the provider; `campaign_spend_bolt_eur` is the part funded by Bolt.
 - A `provider_campaign_*` objective name identifies the campaign framework, **not** its funding. The two spend columns are the funding source of record.
 
@@ -42,7 +42,7 @@ September campaign attribution contains **€7,185.47** total spend:
 | `marketing` | 2 | 2 | 12.38 | 0.00 | 12.38 |
 | **Total** | **12** | **3,509** | **436.22** | **6,749.25** | **7,185.47** |
 
-The premise that there is no investment is therefore not fully supported by the campaign data: **€6,749.25 is provider-funded**, principally via the 3P Pricelist campaign. It does **not** explain the CP L1 loss, but it does contribute to the CP L2 loss.
+The premise that there is no investment is therefore not fully supported by the campaign data: **€6,749.25 is provider-funded**, principally via the 3P Pricelist campaign. Provider-funded spend is not a Bolt CP L1 cost. Only €43.39 of Bolt menu-campaign cost share is recorded in CP L1; the remaining €3,744.06 unitemised variable costs are the main driver of the loss.
 
 ## Exact campaigns included
 
