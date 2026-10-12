@@ -1,11 +1,6 @@
 name: Update Stores Daily Report
 
 on:
-  schedule:
-    # 09:05 Kyiv is 06:05 UTC in summer and 07:05 UTC in winter.
-    # Five minutes past the hour avoids GitHub Actions' :00 scheduling queue.
-    - cron: "5 6 * * *"
-    - cron: "5 7 * * *"
   workflow_dispatch:
 
 permissions:
@@ -13,7 +8,7 @@ permissions:
 
 concurrency:
   group: stores-daily-report
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   refresh:
@@ -23,29 +18,9 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-      - name: Check this schedule matches 09:05 Kyiv
-        id: kyiv-time
-        run: |
-          set -euo pipefail
-          offset="$(TZ=Europe/Kyiv date +%z)"
-          case "$offset" in
-            +0300) expected='5 6 * * *' ;;
-            +0200) expected='5 7 * * *' ;;
-            *) echo "Unexpected Kyiv offset: $offset"; exit 1 ;;
-          esac
-          if [ "$GITHUB_EVENT_NAME" = "workflow_dispatch" ] || [ "$SCHEDULE" = "$expected" ]; then
-            echo "run=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "run=false" >> "$GITHUB_OUTPUT"
-            echo "Skipping '$SCHEDULE'; Kyiv offset $offset expects '$expected'."
-          fi
-        env:
-          SCHEDULE: ${{ github.event.schedule }}
       - name: Install dependencies
-        if: steps.kyiv-time.outputs.run == 'true'
         run: pip install -r requirements.txt
       - name: Fetch daily ENT and SMB partner data
-        if: steps.kyiv-time.outputs.run == 'true'
         env:
           DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
           DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
@@ -53,7 +28,6 @@ jobs:
           DATABRICKS_HTTP_PATH: ${{ secrets.DATABRICKS_HTTP_PATH }}
         run: python fetch_daily_partner_data.py
       - name: Validate daily extract
-        if: steps.kyiv-time.outputs.run == 'true'
         run: |
           python - <<'PY'
           import json
@@ -63,7 +37,6 @@ jobs:
           print(f"OK: {len(payload['rows'])} rows through {payload['through']}")
           PY
       - name: Commit refreshed data
-        if: steps.kyiv-time.outputs.run == 'true'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
