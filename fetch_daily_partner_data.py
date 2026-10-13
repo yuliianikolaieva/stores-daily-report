@@ -39,16 +39,27 @@ orders AS (
       AND f.order_created_date < CURRENT_DATE()
     GROUP BY 1, 2, 3
 ),
-availability AS (
-    SELECT d.observation_date AS date, p.segment, p.partner,
-        SUM(d.provider_active_time_minutes) AS active_minutes,
-        SUM(d.provider_working_time_minutes) AS working_minutes,
-        COUNT(DISTINCT d.provider_id) AS stores_observed
-    FROM main.ng_delivery.fact_provider_daily d
-    JOIN providers p ON p.provider_id = d.provider_id
-    WHERE d.observation_date >= DATE '{DATA_START}'
-      AND d.observation_date < CURRENT_DATE()
+availability_raw AS (
+    SELECT a.created_date AS date, p.segment, p.partner,
+        SUM(a.active_time) AS active_minutes,
+        SUM(a.working_time) AS working_minutes,
+        COUNT(DISTINCT a.provider_id) AS stores_observed
+    FROM main.ng_delivery.etl_delivery_provider_daily_availability a
+    JOIN providers p ON p.provider_id = a.provider_id
+    WHERE a.created_date >= DATE '{DATA_START}'
+      AND a.created_date < CURRENT_DATE()
     GROUP BY 1, 2, 3
+),
+availability_complete_dates AS (
+    SELECT date
+    FROM availability_raw
+    GROUP BY 1
+    HAVING SUM(active_minutes) > 0
+),
+availability AS (
+    SELECT a.*
+    FROM availability_raw a
+    JOIN availability_complete_dates d ON d.date = a.date
 )
 SELECT COALESCE(o.date, a.date) AS date, COALESCE(o.segment, a.segment) AS segment,
     COALESCE(o.partner, a.partner) AS partner, COALESCE(o.orders, 0) AS orders,
